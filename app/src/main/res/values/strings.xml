@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Weight Tracker</string>
+    <string name="about_me_text">This is about me. I follow a healthy diet.</string>
+    <string name="about_me_diet">My diet is mainly focused on reducing sugar and bread.</string>
+</resources>
