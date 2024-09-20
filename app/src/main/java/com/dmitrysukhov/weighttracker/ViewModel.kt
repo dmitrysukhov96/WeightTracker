@@ -11,7 +11,6 @@ class WeightViewModel(application: Application) : AndroidViewModel(application) 
     private val database: AppDatabase = Room.databaseBuilder(
         application, AppDatabase::class.java, "weight_db"
     ).build()
-
     val weightDao = database.weightDao()
 
     fun insertWeight(weightEntry: WeightEntry) = viewModelScope.launch {
@@ -20,5 +19,9 @@ class WeightViewModel(application: Application) : AndroidViewModel(application) 
 
     fun getWeightEntriesForMonth(start: Long, end: Long): Flow<List<WeightEntry>> {
         return weightDao.getWeightEntriesForMonth(start, end)
+    }
+
+    fun deleteWeight(weightEntry: WeightEntry) = viewModelScope.launch {
+        weightDao.deleteWeightById(weightEntry.id)
     }
 }

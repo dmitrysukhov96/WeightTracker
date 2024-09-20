@@ -1,5 +1,6 @@
 package com.dmitrysukhov.weighttracker
 
+import AddWeightDialog
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -27,13 +28,10 @@ import com.dmitrysukhov.weighttracker.ui.theme.WeightTrackerTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            WeightTrackerTheme {
-                WeightTrackerApp()
-            }
-        }
+        setContent { WeightTrackerTheme { WeightTrackerApp() } }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeightTrackerApp() {
@@ -41,29 +39,20 @@ fun WeightTrackerApp() {
     val navController = rememberNavController()
     val title by remember { mutableStateOf("Weight Tracker") }
     var showAddWeightDialog by remember { mutableStateOf(false) }
-    if (showAddWeightDialog) {
-        AddWeightDialog(
-            viewModel = viewModel,
-            onDismiss = { showAddWeightDialog = false }
-        )
-    }
+    if (showAddWeightDialog) AddWeightDialog(
+        viewModel = viewModel, onDismiss = { showAddWeightDialog = false }, selectedEntry = null
+    )
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text(title) })
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = { showAddWeightDialog = true }) {
-                Text("+")
-            }
+        topBar = { TopAppBar(title = { Text(title) }) }, floatingActionButton = {
+            FloatingActionButton(onClick = { showAddWeightDialog = true }) { Text("+") }
         }
     ) { innerPadding ->
         NavHost(
-            navController = navController,
-            startDestination = MONTH_VIEW_SCREEN,  // Измените на MONTH_VIEW_SCREEN
-            Modifier.padding(innerPadding)
+            navController = navController, startDestination = MONTH_SCREEN,
+            modifier = Modifier.padding(innerPadding)
         ) {
             composable(ABOUT_PROJECT_SCREEN) { AboutProjectScreen() }
-            composable(MONTH_VIEW_SCREEN) { MonthView(viewModel) }
+            composable(MONTH_SCREEN) { MonthView(viewModel) }
         }
     }
 }
@@ -75,5 +64,5 @@ fun AboutProjectScreen() {
     }
 }
 
-const val MONTH_VIEW_SCREEN = "month_view"
+const val MONTH_SCREEN = "month_view"
 const val ABOUT_PROJECT_SCREEN = "about_project"
