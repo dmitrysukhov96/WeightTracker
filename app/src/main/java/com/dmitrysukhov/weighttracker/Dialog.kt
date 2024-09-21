@@ -33,6 +33,7 @@ fun AddWeightDialog(
     var grams by rememberSaveable { mutableStateOf(selectedEntry?.grams?.toString() ?: "") }
     var noSugar by rememberSaveable { mutableStateOf(selectedEntry?.noSugar ?: false) }
     var noBread by rememberSaveable { mutableStateOf(selectedEntry?.noBread ?: false) }
+    var failedDiet by rememberSaveable { mutableStateOf(selectedEntry?.failedDiet ?: false) }
     var selectedDate by rememberSaveable {
         mutableStateOf(selectedEntry?.let { LocalDate(it.date) } ?: LocalDate.now())
     }
@@ -62,6 +63,10 @@ fun AddWeightDialog(
                     Checkbox(checked = noBread, onCheckedChange = { noBread = it })
                     Text("No Bread")
                 }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(checked = failedDiet, onCheckedChange = { failedDiet = it })
+                    Text("Failed Diet")
+                }
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(onClick = { showDatePicker = true }) {
                     Text("Select Date: ${selectedDate.toString("yyyy-MM-dd")}")
@@ -76,8 +81,8 @@ fun AddWeightDialog(
             Button(onClick = {
                 val entry = WeightEntry(
                     id = selectedEntry?.id ?: 0, date = selectedDate.toDate().time,
-                    weight = weight.toFloatOrNull() ?: 0f, noSugar = noSugar, noBread = noBread,
-                    grams = grams.toIntOrNull() ?: 0
+                    weight = weight.replace(",",".").toFloatOrNull() ?: 0f, noSugar = noSugar, noBread = noBread,
+                    grams = grams.toIntOrNull() ?: 0, failedDiet = failedDiet
                 )
                 viewModel.insertWeight(entry)
                 onDismiss()

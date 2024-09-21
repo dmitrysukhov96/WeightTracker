@@ -8,11 +8,12 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "weight_entries")
 data class WeightEntry(
     @PrimaryKey(autoGenerate = true) val id: Int = 0, val date: Long, val weight: Float,
-    val noSugar: Boolean, val noBread: Boolean, val grams: Int
+    val noSugar: Boolean, val noBread: Boolean, val grams: Int, val failedDiet: Boolean
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(), parcel.readLong(), parcel.readFloat(),
-        parcel.readByte() != 0.toByte(), parcel.readByte() != 0.toByte(), parcel.readInt()
+        parcel.readByte() != 0.toByte(), parcel.readByte() != 0.toByte(), parcel.readInt(),
+        parcel.readByte() != 0.toByte()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -22,6 +23,7 @@ data class WeightEntry(
         parcel.writeByte(if (noSugar) 1 else 0)
         parcel.writeByte(if (noBread) 1 else 0)
         parcel.writeInt(grams)
+        parcel.writeByte(if (failedDiet) 1 else 0)
     }
 
     override fun describeContents() = 0

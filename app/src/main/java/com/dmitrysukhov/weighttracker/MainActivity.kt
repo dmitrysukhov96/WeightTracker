@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -44,7 +45,7 @@ fun WeightTrackerApp() {
     )
     Scaffold(
         topBar = { TopAppBar(title = { Text(title) }) }, floatingActionButton = {
-            FloatingActionButton(onClick = { showAddWeightDialog = true }) { Text("+") }
+            FloatingActionButton(onClick = { showAddWeightDialog = true }) { Text("+", fontSize = 24.sp) }
         }
     ) { innerPadding ->
         NavHost(

@@ -1,5 +1,7 @@
 <resources>
-    <string name="app_name">Weight Tracker</string>
-    <string name="about_me_text">This is about me. I follow a healthy diet.</string>
-    <string name="about_me_diet">My diet is mainly focused on reducing sugar and bread.</string>
+    <string name="app_name" translatable="false">Weight Tracker</string>
+    <string name="about_me_text" translatable="false">This is about me. I follow a healthy diet.</string>
+    <string name="about_me_diet" translatable="false">My diet is mainly focused on reducing sugar and bread.</string>
+    <string name="weight_arg">%s kg.</string>
+    <string name="grams_arg">%s g.</string>
 </resources>
