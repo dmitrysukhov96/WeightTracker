@@ -47,8 +47,7 @@ import org.joda.time.Months
 fun MonthView(viewModel: WeightViewModel) {
     var currentMonth by remember { mutableStateOf(now().withDayOfMonth(1)) }
     val startOfMonth = currentMonth.toDate().time
-    val endOfMonth =
-        currentMonth.dayOfMonth().withMaximumValue().toDate().time + (1000 * 60 * 60 * 24)
+    val endOfMonth = currentMonth.dayOfMonth().withMaximumValue().toDate().time + (1000 * 60 * 60 * 24)
     var showAddWeightDialog by remember { mutableStateOf(false) }
     var selectedEntry: WeightEntry? by remember { mutableStateOf(null) }
 
@@ -59,10 +58,12 @@ fun MonthView(viewModel: WeightViewModel) {
             selectedEntry = selectedEntry
         )
     }
+
     val weightEntries by viewModel.getWeightEntriesForMonth(start = startOfMonth, end = endOfMonth)
         .collectAsState(emptyList())
     val context = LocalContext.current
     val savedGoal = loadWeightGoal(context)
+
     Column(Modifier.fillMaxSize()) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -85,39 +86,26 @@ fun MonthView(viewModel: WeightViewModel) {
             items(daysInMonth) { dayIndex ->
                 val currentDate = currentMonth.withDayOfMonth(dayIndex + 1)
                 val entryForDay = weightEntries.find { LocalDate(it.date).isEqual(currentDate) }
-                if (savedGoal != null && (entryForDay != null || (currentDate.isAfter(
-                        LocalDate(savedGoal.startDate)
-                    ) && currentDate.isBefore(LocalDate(savedGoal.targetDate))))
-                ) {
-                    val predictedWeight =
-                        if (currentDate.isAfter(LocalDate(savedGoal.startDate)) && currentDate.isBefore(
-                                LocalDate(savedGoal.targetDate)
-                            )
-                        ) {
-                            calculatePredictedWeight(
-                                currentDate = currentDate,
-                                startDate = LocalDate(savedGoal.startDate),
-                                startWeight = savedGoal.currentWeight,
-                                endDate = LocalDate(savedGoal.targetDate),
-                                goalWeight = savedGoal.goalWeight
-                            )
-                        } else null
-
+                if (entryForDay != null || (savedGoal != null && (currentDate.isAfter(LocalDate(savedGoal.startDate)) && currentDate.isBefore(LocalDate(savedGoal.targetDate))))) {
+                    val predictedWeight = if (currentDate.isAfter(LocalDate(savedGoal?.startDate)) && currentDate.isBefore(LocalDate(savedGoal?.targetDate))) {
+                        calculatePredictedWeight(
+                            currentDate = currentDate,
+                            startDate = LocalDate(savedGoal!!.startDate),
+                            startWeight = savedGoal.currentWeight,
+                            endDate = LocalDate(savedGoal.targetDate),
+                            goalWeight = savedGoal.goalWeight
+                        )
+                    } else null
                     val sugarIcon = entryForDay?.let {
                         if (it.noSugar) painterResource(R.drawable.no_sugar) else painterResource(R.drawable.sugar)
                     }
                     val breadIcon = entryForDay?.let {
                         if (it.noBread) painterResource(R.drawable.no_bread) else painterResource(R.drawable.bread)
                     }
-                    val previousEntry =
-                        weightEntries.getOrNull(weightEntries.indexOf(entryForDay) - 1)
+                    val previousEntry = weightEntries.getOrNull(weightEntries.indexOf(entryForDay) - 1)
                     val weightChangeIcon = when {
-                        previousEntry != null && entryForDay != null && entryForDay.weight > previousEntry.weight ->
-                            painterResource(R.drawable.arrow_up)
-
-                        previousEntry != null && entryForDay != null && entryForDay.weight < previousEntry.weight ->
-                            painterResource(R.drawable.arrow_down)
-
+                        previousEntry != null && entryForDay != null && entryForDay.weight > previousEntry.weight -> painterResource(R.drawable.arrow_up)
+                        previousEntry != null && entryForDay != null && entryForDay.weight < previousEntry.weight -> painterResource(R.drawable.arrow_down)
                         else -> null
                     }
 
@@ -126,7 +114,7 @@ fun MonthView(viewModel: WeightViewModel) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp, 8.dp)
+                            .padding(8.dp, 4.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .background(MaterialTheme.colorScheme.inversePrimary)
                             .padding(4.dp)
@@ -151,15 +139,15 @@ fun MonthView(viewModel: WeightViewModel) {
                             if (weightChangeIcon != null) Image(
                                 painter = weightChangeIcon,
                                 contentDescription = null,
-                                modifier = Modifier.size(24.dp, 24.dp)
+                                modifier = Modifier.padding(start = 8.dp).size(24.dp, 24.dp)
                             ) else Spacer(modifier = Modifier.size(24.dp, 24.dp))
+
                             Text(
-                                if (entryForDay != null) stringResource(
-                                    R.string.weight_arg, entryForDay.weight
-                                ) else "              ", fontWeight = W700
+                                if (entryForDay != null) stringResource(R.string.weight_arg, entryForDay.weight) else "              ",
+                                fontWeight = W700
                             )
                             Text(
-                                if (predictedWeight != null) "%.1f".format(predictedWeight) + "   " else "          ",
+                                if (predictedWeight != null) "%.1f".format(predictedWeight) else "          ",
                                 fontStyle = FontStyle.Italic,
                                 modifier = Modifier.alpha(0.7f)
                             )
