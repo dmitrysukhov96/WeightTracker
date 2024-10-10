@@ -1,5 +1,5 @@
 [versions]
-agp = "8.6.1"
+agp = "8.5.2"
 comGoogleDevtoolsKspGradlePlugin = "1.9.20-1.0.14"
 comGoogleDevtoolsKspGradlePluginVersion = "1.9.20-1.0.14"
 jodaTime = "2.12.6"

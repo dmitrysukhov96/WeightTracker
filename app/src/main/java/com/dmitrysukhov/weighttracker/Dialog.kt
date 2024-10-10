@@ -1,4 +1,5 @@
 import android.app.DatePickerDialog
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,7 +22,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.dmitrysukhov.weighttracker.WeightEntry
+import com.dmitrysukhov.weighttracker.WeightGoal
 import com.dmitrysukhov.weighttracker.WeightViewModel
+import com.dmitrysukhov.weighttracker.deleteWeightGoal
+import com.dmitrysukhov.weighttracker.loadWeightGoal
+import com.dmitrysukhov.weighttracker.saveWeightGoal
 import org.joda.time.LocalDate
 import java.util.Calendar
 
@@ -110,4 +115,79 @@ fun DatePicker(initialDate: LocalDate, onDateSelected: (LocalDate) -> Unit) {
         )
         datePickerDialog.show()
     }
+}
+
+@Composable
+fun WeightGoalDialog(context: Context, onDismiss: () -> Unit) {
+    var currentWeight by rememberSaveable { mutableStateOf("") }
+    var goalWeight by rememberSaveable { mutableStateOf("") }
+    var selectedDate by rememberSaveable { mutableStateOf(LocalDate.now()) }
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
+
+    // Загрузка данных из Shared Preferences, если они есть
+    val savedGoal = loadWeightGoal(context)
+    savedGoal?.let {
+        currentWeight = it.currentWeight.toString()
+        goalWeight = it.goalWeight.toString()
+        selectedDate = LocalDate(it.targetDate)
+    }
+
+    if (showDatePicker) {
+        DatePicker(
+            initialDate = selectedDate,
+            onDateSelected = { selectedDate = it; showDatePicker = false }
+        )
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Установка цели") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = currentWeight,
+                    onValueChange = { currentWeight = it },
+                    label = { Text("Текущий вес") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                )
+                OutlinedTextField(
+                    value = goalWeight,
+                    onValueChange = { goalWeight = it },
+                    label = { Text("Целевой вес") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                )
+                Button(onClick = { showDatePicker = true }) {
+                    Text("Выбрать дату: ${selectedDate.toString("yyyy-MM-dd")}")
+                }
+                savedGoal?.let {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = {
+                        deleteWeightGoal(context)
+                        onDismiss()
+                    }) {
+                        Text("Удалить цель")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                val goal = WeightGoal(
+                    currentWeight = currentWeight.toFloatOrNull() ?: 0f,
+                    goalWeight = goalWeight.toFloatOrNull() ?: 0f,
+                    startDate = LocalDate.now().toDate().time,
+                    targetDate = selectedDate.toDate().time
+                )
+                saveWeightGoal(context, goal)
+                onDismiss()
+            }) {
+                Text("Сохранить")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Отмена")
+            }
+        }
+    )
 }
