@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -58,12 +59,14 @@ fun MonthView(viewModel: WeightViewModel) {
             selectedEntry = selectedEntry
         )
     }
-
     val weightEntries by viewModel.getWeightEntriesForMonth(start = startOfMonth, end = endOfMonth)
         .collectAsState(emptyList())
     val context = LocalContext.current
     val savedGoal = loadWeightGoal(context)
-
+    Image(
+        contentScale = ContentScale.FillHeight, painter = painterResource(R.drawable.img),
+        contentDescription = null, modifier = Modifier.fillMaxSize().alpha(0.75F)
+    )
     Column(Modifier.fillMaxSize()) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -139,7 +142,9 @@ fun MonthView(viewModel: WeightViewModel) {
                             if (weightChangeIcon != null) Image(
                                 painter = weightChangeIcon,
                                 contentDescription = null,
-                                modifier = Modifier.padding(start = 8.dp).size(24.dp, 24.dp)
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                                    .size(24.dp, 24.dp)
                             ) else Spacer(modifier = Modifier.size(24.dp, 24.dp))
 
                             Text(

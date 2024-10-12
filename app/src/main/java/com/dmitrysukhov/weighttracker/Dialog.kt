@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -36,6 +37,7 @@ fun AddWeightDialog(
 ) {
     var weight by rememberSaveable { mutableStateOf(selectedEntry?.weight?.toString() ?: "") }
     var grams by rememberSaveable { mutableStateOf(selectedEntry?.grams?.toString() ?: "") }
+    var plusGrams by rememberSaveable { mutableStateOf("") }
     var noSugar by rememberSaveable { mutableStateOf(selectedEntry?.noSugar ?: false) }
     var noBread by rememberSaveable { mutableStateOf(selectedEntry?.noBread ?: false) }
     var failedDiet by rememberSaveable { mutableStateOf(selectedEntry?.failedDiet ?: false) }
@@ -49,36 +51,47 @@ fun AddWeightDialog(
     )
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add/Update Weight Entry") },
+        title = { Text("Добавить/Обновить данные о весе") },
         text = {
             Column {
                 OutlinedTextField(
-                    value = weight, onValueChange = { weight = it }, label = { Text("Weight") },
+                    value = weight, onValueChange = { weight = it }, label = { Text("Вес") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
-                OutlinedTextField(
-                    value = grams, onValueChange = { grams = it }, label = { Text("Grams") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
+                Row {
+                    OutlinedTextField(
+                        value = grams, onValueChange = { grams = it }, label = { Text("Грамм") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.weight(2f)
+                    )
+                    Spacer(Modifier.width(16.dp))
+                    OutlinedTextField(
+                        value = plusGrams,
+                        onValueChange = { plusGrams = it },
+                        label = { Text("Плюс") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.weight(1F)
+                    )
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = noSugar, onCheckedChange = { noSugar = it })
-                    Text("No Sugar")
+                    Text("Без сахара")
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = noBread, onCheckedChange = { noBread = it })
-                    Text("No Bread")
+                    Text("Без хлеба")
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = failedDiet, onCheckedChange = { failedDiet = it })
-                    Text("Failed Diet")
+                    Text("Провал диеты")
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Button(onClick = { showDatePicker = true }) {
-                    Text("Select Date: ${selectedDate.toString("yyyy-MM-dd")}")
+                    Text("Дата: ${selectedDate.toString("dd.MM.yyyy")}")
                 }
                 selectedEntry?.let {
                     Button(onClick = { viewModel.deleteWeight(it); onDismiss() }
-                    ) { Text("Delete") }
+                    ) { Text("Удалить") }
                 }
             }
         },
@@ -86,14 +99,15 @@ fun AddWeightDialog(
             Button(onClick = {
                 val entry = WeightEntry(
                     id = selectedEntry?.id ?: 0, date = selectedDate.toDate().time,
-                    weight = weight.replace(",",".").toFloatOrNull() ?: 0f, noSugar = noSugar, noBread = noBread,
-                    grams = grams.toIntOrNull() ?: 0, failedDiet = failedDiet
+                    weight = weight.replace(",", ".").toFloatOrNull() ?: 0f,
+                    noSugar = noSugar, noBread = noBread, failedDiet = failedDiet,
+                    grams = (grams.toIntOrNull() ?: 0) + (plusGrams.toIntOrNull() ?: 0),
                 )
                 viewModel.insertWeight(entry)
                 onDismiss()
             }) { Text("OK") }
         },
-        dismissButton = { Button(onClick = onDismiss) { Text("Cancel") } }
+        dismissButton = { Button(onClick = onDismiss) { Text("Отмена") } }
     )
 }
 
@@ -182,6 +196,40 @@ fun WeightGoalDialog(context: Context, onDismiss: () -> Unit) {
                 onDismiss()
             }) {
                 Text("Сохранить")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Отмена")
+            }
+        }
+    )
+}
+
+@Composable
+fun AddFoodDialog(viewModel: WeightViewModel, onDismiss: () -> Unit) {
+    var foodGrams by rememberSaveable { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Добавить еду") },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = foodGrams,
+                    onValueChange = { foodGrams = it },
+                    label = { Text("Граммы") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                val gramsValue = foodGrams.toIntOrNull() ?: 0
+                viewModel.addFoodToWeightEntry(gramsValue)
+                onDismiss()
+            }) {
+                Text("OK")
             }
         },
         dismissButton = {

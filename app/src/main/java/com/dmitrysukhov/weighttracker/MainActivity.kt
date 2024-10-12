@@ -1,5 +1,6 @@
 package com.dmitrysukhov.weighttracker
 
+import AddFoodDialog
 import AddWeightDialog
 import WeightGoalDialog
 import android.os.Bundle
@@ -55,16 +56,25 @@ fun WeightTrackerApp() {
         viewModel = viewModel, onDismiss = { showAddWeightDialog = false }, selectedEntry = null
     )
     val savedGoal = loadWeightGoal(context)
+    var showFoodDialog by remember { mutableStateOf(false) }
+    if (showFoodDialog) AddFoodDialog(viewModel, onDismiss = { showFoodDialog = false })
     var showGoalDialog by remember { mutableStateOf(false) }
     if (showGoalDialog) WeightGoalDialog(context, onDismiss = { showGoalDialog = false })
     Scaffold(
         topBar = { TopAppBar(title = { Text(title) }) }, floatingActionButton = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = if (savedGoal!=null)"Цель: ${savedGoal.goalWeight} до ${DateTime(savedGoal.targetDate).toString("d.MM.yyyy")}"
-                         else "", fontSize = 18.sp, fontWeight = W900)
+                Text(
+                    text = if (savedGoal != null) "Цель: \n${savedGoal.goalWeight} до ${
+                        DateTime(savedGoal.targetDate).toString("d.MM.yyyy")
+                    }" else "", fontSize = 18.sp, fontWeight = W900
+                )
                 Spacer(modifier = Modifier.width(16.dp))
                 FloatingActionButton(onClick = { showGoalDialog = true }) {
                     Image(painterResource(R.drawable.goal), contentDescription = null)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                FloatingActionButton(onClick = { showFoodDialog = true }) {
+                    Image(painterResource(R.drawable.food), contentDescription = null)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 FloatingActionButton(onClick = { showAddWeightDialog = true })
