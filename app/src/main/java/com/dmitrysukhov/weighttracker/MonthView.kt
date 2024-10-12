@@ -154,7 +154,7 @@ fun MonthView(viewModel: WeightViewModel) {
                             Text(
                                 if (predictedWeight != null) "%.1f".format(predictedWeight) else "          ",
                                 fontStyle = FontStyle.Italic,
-                                modifier = Modifier.alpha(0.7f)
+                                modifier = Modifier.alpha(0.7f).padding(end = 16.dp)
                             )
                         }
 
