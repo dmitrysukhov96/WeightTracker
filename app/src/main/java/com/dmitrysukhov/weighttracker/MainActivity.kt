@@ -18,6 +18,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,8 +26,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight.Companion.W500
 import androidx.compose.ui.text.font.FontWeight.Companion.W900
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,24 +64,29 @@ fun WeightTrackerApp() {
     var showGoalDialog by remember { mutableStateOf(false) }
     if (showGoalDialog) WeightGoalDialog(context, onDismiss = { showGoalDialog = false })
     Scaffold(
-        topBar = { TopAppBar(title = { Text(title) }) }, floatingActionButton = {
+        topBar = {
+            TopAppBar(title = {
+                Text(title, color = Color.White, fontWeight = W500, fontSize = 24.sp)
+            }, colors = topAppBarColors(Color.Black))
+        }, floatingActionButton = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = if (savedGoal != null) "Цель: \n${savedGoal.goalWeight} до ${
                         DateTime(savedGoal.targetDate).toString("d.MM.yyyy")
-                    }" else "", fontSize = 18.sp, fontWeight = W900
+                    }" else "", fontSize = 18.sp, fontWeight = W900, color = Color.White
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-                FloatingActionButton(onClick = { showGoalDialog = true }) {
-                    Image(painterResource(R.drawable.goal), contentDescription = null)
-                }
+                FloatingActionButton(
+                    onClick = { showGoalDialog = true }, containerColor = Color.Black
+                ) { Image(painterResource(R.drawable.goal), contentDescription = null) }
                 Spacer(modifier = Modifier.width(8.dp))
-                FloatingActionButton(onClick = { showFoodDialog = true }) {
-                    Image(painterResource(R.drawable.food), contentDescription = null)
-                }
+                FloatingActionButton(
+                    onClick = { showFoodDialog = true }, containerColor = Color.Black
+                ) { Image(painterResource(R.drawable.food), contentDescription = null) }
                 Spacer(modifier = Modifier.width(8.dp))
-                FloatingActionButton(onClick = { showAddWeightDialog = true })
-                { Text("+", fontSize = 30.sp) }
+                FloatingActionButton(
+                    onClick = { showAddWeightDialog = true }, containerColor = Color.Black
+                ) { Text("+", fontSize = 30.sp, color = Color.White) }
             }
         }
     ) { innerPadding ->

@@ -17,8 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.material3.ElevatedButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -65,7 +65,11 @@ fun MonthView(viewModel: WeightViewModel) {
     val savedGoal = loadWeightGoal(context)
     Image(
         contentScale = ContentScale.FillHeight, painter = painterResource(R.drawable.img),
-        contentDescription = null, modifier = Modifier.fillMaxSize().alpha(0.75F)
+        contentDescription = null,
+        modifier = Modifier
+            .background(Color.Black)
+            .fillMaxSize()
+            .alpha(0.75F)
     )
     Column(Modifier.fillMaxSize()) {
         Row(
@@ -75,13 +79,18 @@ fun MonthView(viewModel: WeightViewModel) {
                 .fillMaxWidth()
                 .padding(8.dp)
         ) {
-            ElevatedButton({ currentMonth = currentMonth.minus(Months.ONE) }) { Text("<") }
+            ElevatedButton(
+                { currentMonth = currentMonth.minus(Months.ONE) },
+                colors = buttonColors(Color.Black)
+            ) { Text("<", color = Color.White, fontSize = 20.sp) }
             Text(
                 currentMonth.toString("MMMM yyyy"),
-                style = MaterialTheme.typography.titleMedium,
-                fontSize = 18.sp
+                fontSize = 18.sp, color = Color.White
             )
-            ElevatedButton({ currentMonth = currentMonth.plus(Months.ONE) }) { Text(">") }
+            ElevatedButton(
+                { currentMonth = currentMonth.plus(Months.ONE) },
+                colors = buttonColors(Color.Black)
+            ) { Text(">", color = Color.White, fontSize = 20.sp) }
         }
 
         LazyColumn(modifier = Modifier.padding(bottom = 80.dp)) {
@@ -119,7 +128,7 @@ fun MonthView(viewModel: WeightViewModel) {
                             .fillMaxWidth()
                             .padding(8.dp, 4.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.inversePrimary)
+                            .background(Color.Black.copy(0.6f))
                             .padding(4.dp)
                             .height(36.dp)
                             .clickable {
@@ -128,7 +137,7 @@ fun MonthView(viewModel: WeightViewModel) {
                             }
                     ) {
                         Row(Modifier.weight(1F), horizontalArrangement = Arrangement.Center) {
-                            Text(currentDate.toString("d MMM"))
+                            Text(currentDate.toString("d MMM"), color = Color.White)
                         }
 
                         Row(
@@ -149,12 +158,16 @@ fun MonthView(viewModel: WeightViewModel) {
 
                             Text(
                                 if (entryForDay != null) stringResource(R.string.weight_arg, entryForDay.weight) else "              ",
-                                fontWeight = W700
+                                fontWeight = W700,
+                                color = Color.White
                             )
                             Text(
                                 if (predictedWeight != null) "%.1f".format(predictedWeight) else "          ",
                                 fontStyle = FontStyle.Italic,
-                                modifier = Modifier.alpha(0.7f).padding(end = 16.dp)
+                                color = Color.White,
+                                modifier = Modifier
+                                    .alpha(0.7f)
+                                    .padding(end = 16.dp)
                             )
                         }
 
@@ -183,7 +196,7 @@ fun MonthView(viewModel: WeightViewModel) {
                                 Image(painterResource(R.drawable.idk), null, Modifier.size(36.dp))
                             else Text(
                                 stringResource(R.string.grams_arg, entryForDay?.grams ?: 0),
-                                fontWeight = W700
+                                fontWeight = W700, color = Color.White
                             )
                         }
                     }
