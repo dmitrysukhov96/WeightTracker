@@ -19,6 +19,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -50,7 +51,7 @@ fun AddWeightDialog(
         onDateSelected = { selectedDate = it; showDatePicker = false }
     )
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = onDismiss, containerColor = Color.Black,
         title = { Text("Добавить/Обновить данные о весе") },
         text = {
             Column {
@@ -73,15 +74,16 @@ fun AddWeightDialog(
                         modifier = Modifier.weight(1F)
                     )
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(32.dp)) {
                     Checkbox(checked = noSugar, onCheckedChange = { noSugar = it })
                     Text("Без сахара")
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(32.dp)) {
                     Checkbox(checked = noBread, onCheckedChange = { noBread = it })
                     Text("Без хлеба")
                 }
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.height(32.dp)) {
                     Checkbox(checked = failedDiet, onCheckedChange = { failedDiet = it })
                     Text("Провал диеты")
                 }
@@ -120,6 +122,7 @@ fun DatePicker(initialDate: LocalDate, onDateSelected: (LocalDate) -> Unit) {
     LaunchedEffect(context) {
         val datePickerDialog = DatePickerDialog(
             context,
+            android.R.style.Theme_DeviceDefault_Dialog,  // Здесь можно указать кастомную тему
             { _, year, month, day ->
                 val newDate = LocalDate(year, month + 1, day)
                 onDateSelected(newDate)
@@ -154,7 +157,7 @@ fun WeightGoalDialog(context: Context, onDismiss: () -> Unit) {
     }
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = onDismiss, containerColor = Color.Black,
         title = { Text("Установка цели") },
         text = {
             Column {
@@ -211,7 +214,7 @@ fun AddFoodDialog(viewModel: WeightViewModel, onDismiss: () -> Unit) {
     var foodGrams by rememberSaveable { mutableStateOf("") }
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = onDismiss, containerColor = Color.Black,
         title = { Text("Добавить еду") },
         text = {
             Column {

@@ -69,7 +69,7 @@ fun MonthView(viewModel: WeightViewModel) {
         modifier = Modifier
             .background(Color.Black)
             .fillMaxSize()
-            .alpha(0.75F)
+            .alpha(0.8F)
     )
     Column(Modifier.fillMaxSize()) {
         Row(
@@ -84,7 +84,7 @@ fun MonthView(viewModel: WeightViewModel) {
                 colors = buttonColors(Color.Black)
             ) { Text("<", color = Color.White, fontSize = 20.sp) }
             Text(
-                currentMonth.toString("MMMM yyyy"),
+                currentMonth.toString("MMM yyyy"),
                 fontSize = 18.sp, color = Color.White
             )
             ElevatedButton(
@@ -126,8 +126,8 @@ fun MonthView(viewModel: WeightViewModel) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp, 4.dp)
-                            .clip(RoundedCornerShape(8.dp))
+                            .padding(8.dp, 2.dp)
+                            .clip(RoundedCornerShape(12.dp))
                             .background(Color.Black.copy(0.6f))
                             .padding(4.dp)
                             .height(36.dp)
@@ -137,7 +137,8 @@ fun MonthView(viewModel: WeightViewModel) {
                             }
                     ) {
                         Row(Modifier.weight(1F), horizontalArrangement = Arrangement.Center) {
-                            Text(currentDate.toString("d MMM"), color = Color.White)
+                            Text(currentDate.toString("d MMM"), color = Color.White,
+                                fontSize = 12.sp)
                         }
 
                         Row(
@@ -157,13 +158,13 @@ fun MonthView(viewModel: WeightViewModel) {
                             ) else Spacer(modifier = Modifier.size(24.dp, 24.dp))
 
                             Text(
-                                if (entryForDay != null) stringResource(R.string.weight_arg, entryForDay.weight) else "              ",
-                                fontWeight = W700,
+                                if (entryForDay != null) stringResource(R.string.weight_arg, entryForDay.weight) else "         ",
+                                fontWeight = W700, fontSize = 14.sp,
                                 color = Color.White
                             )
                             Text(
                                 if (predictedWeight != null) "%.1f".format(predictedWeight) else "          ",
-                                fontStyle = FontStyle.Italic,
+                                fontStyle = FontStyle.Italic, fontSize = 14.sp,
                                 color = Color.White,
                                 modifier = Modifier
                                     .alpha(0.7f)
@@ -172,8 +173,7 @@ fun MonthView(viewModel: WeightViewModel) {
                         }
 
                         Row(
-                            Modifier.weight(1F),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            Modifier.weight(1F), horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Spacer(Modifier.width(8.dp))
@@ -196,7 +196,7 @@ fun MonthView(viewModel: WeightViewModel) {
                                 Image(painterResource(R.drawable.idk), null, Modifier.size(36.dp))
                             else Text(
                                 stringResource(R.string.grams_arg, entryForDay?.grams ?: 0),
-                                fontWeight = W700, color = Color.White
+                                fontWeight = W700, color = Color.White, fontSize = 14.sp
                             )
                         }
                     }
