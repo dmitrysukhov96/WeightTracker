@@ -43,4 +43,9 @@ class WeightViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun getWeightEntryForDate(date: Long?): Flow<WeightEntry?> {
+        val startOfDay = DateTime(date).withTimeAtStartOfDay().millis
+        val endOfDay = DateTime(date).plusDays(1).withTimeAtStartOfDay().millis
+        return weightDao.getWeightEntryByDate(startOfDay, endOfDay)
+    }
 }

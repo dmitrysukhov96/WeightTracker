@@ -8,11 +8,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "weight_entries")
 data class WeightEntry(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val date: Long, val weight: Float,
-    val noSugar: Boolean,
-    val noBread: Boolean,
-    val grams: Int,
-    val failedDiet: Boolean
+    val date: Long, val weight: Float, val noSugar: Boolean, val noBread: Boolean,
+    val grams: Int, val failedDiet: Boolean
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readInt(), parcel.readLong(), parcel.readFloat(),
@@ -31,7 +28,6 @@ data class WeightEntry(
     }
 
     override fun describeContents() = 0
-
     companion object CREATOR : Parcelable.Creator<WeightEntry> {
         override fun createFromParcel(parcel: Parcel) = WeightEntry(parcel)
         override fun newArray(size: Int): Array<WeightEntry?> = arrayOfNulls(size)

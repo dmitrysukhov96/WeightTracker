@@ -2,4 +2,25 @@
 <resources>
     <string name="weight_arg">%s кг.</string>
     <string name="grams_arg">%s г.</string>
+    <string name="add_weight_data">Добавить данные о весе</string>
+    <string name="weight">Вес</string>
+    <string name="grams">Граммы</string>
+    <string name="plus">Плюс</string>
+    <string name="no_sugar">Без сахара</string>
+    <string name="no_bread">Без хлеба</string>
+    <string name="failed_diet">Провал диеты</string>
+    <string name="date">Дата</string>
+    <string name="delete">Удалить</string>
+    <string name="current_weight">Текущий вес</string>
+    <string name="goal_weight">Целевой вес</string>
+    <string name="choose_date">Выбрать дату</string>
+    <string name="remove_goal">Удалить цель</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
+    <string name="add_food">Добавить еду</string>
+    <string name="grams_input">Граммы</string>
+    <string name="set_goal">Установить цель по весу</string>
+    <string name="target_date">Целевая дата</string>
+    <string name="goal">Цель</string>
+    <string name="to">до</string>
 </resources>

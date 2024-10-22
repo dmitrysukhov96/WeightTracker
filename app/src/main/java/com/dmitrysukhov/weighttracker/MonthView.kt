@@ -1,6 +1,8 @@
 package com.dmitrysukhov.weighttracker
 
+import AddFoodDialog
 import AddWeightDialog
+import WeightGoalDialog
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -19,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults.buttonColors
 import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,8 +40,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.W700
+import androidx.compose.ui.text.font.FontWeight.Companion.W900
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.joda.time.DateTime
 import org.joda.time.Days
 import org.joda.time.LocalDate
 import org.joda.time.LocalDate.now
@@ -46,30 +54,27 @@ import org.joda.time.Months
 
 @Composable
 fun MonthView(viewModel: WeightViewModel) {
+    val context = LocalContext.current
     var currentMonth by remember { mutableStateOf(now().withDayOfMonth(1)) }
     val startOfMonth = currentMonth.toDate().time
-    val endOfMonth = currentMonth.dayOfMonth().withMaximumValue().toDate().time + (1000 * 60 * 60 * 24)
+    val endOfMonth =
+        currentMonth.dayOfMonth().withMaximumValue().toDate().time + (1000 * 60 * 60 * 24)
+    var selectedDate: Long? by remember { mutableStateOf(null) }
     var showAddWeightDialog by remember { mutableStateOf(false) }
-    var selectedEntry: WeightEntry? by remember { mutableStateOf(null) }
-
-    if (showAddWeightDialog) {
-        AddWeightDialog(
-            viewModel = viewModel,
-            onDismiss = { showAddWeightDialog = false },
-            selectedEntry = selectedEntry
-        )
-    }
+    val savedGoal = loadWeightGoal(context)
+    var showFoodDialog by remember { mutableStateOf(false) }
+    if (showFoodDialog) AddFoodDialog(viewModel, onDismiss = { showFoodDialog = false })
+    var showGoalDialog by remember { mutableStateOf(false) }
+    if (showGoalDialog) WeightGoalDialog(context, onDismiss = { showGoalDialog = false })
+    if (showAddWeightDialog) AddWeightDialog(
+        viewModel = viewModel, onDismiss = { showAddWeightDialog = false },
+        date = selectedDate
+    )
     val weightEntries by viewModel.getWeightEntriesForMonth(start = startOfMonth, end = endOfMonth)
         .collectAsState(emptyList())
-    val context = LocalContext.current
-    val savedGoal = loadWeightGoal(context)
     Image(
-        contentScale = ContentScale.FillHeight, painter = painterResource(R.drawable.img),
-        contentDescription = null,
-        modifier = Modifier
-            .background(Color.Black)
-            .fillMaxSize()
-            .alpha(0.8F)
+        contentScale = ContentScale.FillHeight, painter = painterResource(R.drawable.fon),
+        contentDescription = null, modifier = Modifier.fillMaxSize()
     )
     Column(Modifier.fillMaxSize()) {
         Row(
@@ -92,17 +97,20 @@ fun MonthView(viewModel: WeightViewModel) {
                 colors = buttonColors(Color.Black)
             ) { Text(">", color = Color.White, fontSize = 20.sp) }
         }
-
-        LazyColumn(modifier = Modifier.padding(bottom = 80.dp)) {
+        LazyColumn(Modifier.weight(1F)) {
             val daysInMonth = currentMonth.dayOfMonth().withMaximumValue().dayOfMonth
             items(daysInMonth) { dayIndex ->
                 val currentDate = currentMonth.withDayOfMonth(dayIndex + 1)
                 val entryForDay = weightEntries.find { LocalDate(it.date).isEqual(currentDate) }
-                if (entryForDay != null || (savedGoal != null && (currentDate.isAfter(LocalDate(savedGoal.startDate)) && currentDate.isBefore(LocalDate(savedGoal.targetDate))))) {
-                    val predictedWeight = if (currentDate.isAfter(LocalDate(savedGoal?.startDate)) && currentDate.isBefore(LocalDate(savedGoal?.targetDate))) {
+                if (entryForDay != null || (savedGoal != null &&
+                            (currentDate.isAfter(LocalDate(savedGoal.startDate))
+                                    && currentDate.isBefore(LocalDate(savedGoal.targetDate))))
+                ) {
+                    val predictedWeight = if (currentDate.isAfter(LocalDate(savedGoal?.startDate))
+                        && currentDate.isBefore(LocalDate(savedGoal?.targetDate))
+                    ) {
                         calculatePredictedWeight(
-                            currentDate = currentDate,
-                            startDate = LocalDate(savedGoal!!.startDate),
+                            currentDate = currentDate, startDate = LocalDate(savedGoal!!.startDate),
                             startWeight = savedGoal.currentWeight,
                             endDate = LocalDate(savedGoal.targetDate),
                             goalWeight = savedGoal.goalWeight
@@ -114,10 +122,17 @@ fun MonthView(viewModel: WeightViewModel) {
                     val breadIcon = entryForDay?.let {
                         if (it.noBread) painterResource(R.drawable.no_bread) else painterResource(R.drawable.bread)
                     }
-                    val previousEntry = weightEntries.getOrNull(weightEntries.indexOf(entryForDay) - 1)
+                    val previousEntry =
+                        weightEntries.getOrNull(weightEntries.indexOf(entryForDay) - 1)
                     val weightChangeIcon = when {
-                        previousEntry != null && entryForDay != null && entryForDay.weight > previousEntry.weight -> painterResource(R.drawable.arrow_up)
-                        previousEntry != null && entryForDay != null && entryForDay.weight < previousEntry.weight -> painterResource(R.drawable.arrow_down)
+                        previousEntry != null && entryForDay != null && entryForDay.weight > previousEntry.weight -> painterResource(
+                            R.drawable.arrow_up
+                        )
+
+                        previousEntry != null && entryForDay != null && entryForDay.weight < previousEntry.weight -> painterResource(
+                            R.drawable.arrow_down
+                        )
+
                         else -> null
                     }
 
@@ -126,19 +141,21 @@ fun MonthView(viewModel: WeightViewModel) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp, 2.dp)
+                            .padding(8.dp, 1.dp)
                             .clip(RoundedCornerShape(12.dp))
                             .background(Color.Black.copy(0.6f))
                             .padding(4.dp)
-                            .height(36.dp)
+                            .height(32.dp)
                             .clickable {
-                                selectedEntry = entryForDay
+                                selectedDate = entryForDay?.date
                                 showAddWeightDialog = true
                             }
                     ) {
                         Row(Modifier.weight(1F), horizontalArrangement = Arrangement.Center) {
-                            Text(currentDate.toString("d MMM"), color = Color.White,
-                                fontSize = 12.sp)
+                            Text(
+                                currentDate.toString("d MMM"), color = Color.White,
+                                fontSize = 12.sp
+                            )
                         }
 
                         Row(
@@ -154,24 +171,24 @@ fun MonthView(viewModel: WeightViewModel) {
                                 contentDescription = null,
                                 modifier = Modifier
                                     .padding(start = 8.dp)
-                                    .size(24.dp, 24.dp)
-                            ) else Spacer(modifier = Modifier.size(24.dp, 24.dp))
+                                    .weight(1F)
+                            ) else Spacer(modifier = Modifier.weight(1F))
 
                             Text(
-                                if (entryForDay != null) stringResource(R.string.weight_arg, entryForDay.weight) else "         ",
-                                fontWeight = W700, fontSize = 14.sp,
-                                color = Color.White
+                                if (entryForDay != null)
+                                    stringResource(R.string.weight_arg, entryForDay.weight) else "",
+                                fontWeight = W700, fontSize = 14.sp, color = Color.White,
+                                modifier = Modifier.weight(1.5F)
                             )
                             Text(
-                                if (predictedWeight != null) "%.1f".format(predictedWeight) else "          ",
+                                if (predictedWeight != null) "%.1f".format(predictedWeight) else "",
                                 fontStyle = FontStyle.Italic, fontSize = 14.sp,
-                                color = Color.White,
-                                modifier = Modifier
+                                color = Color.White, modifier = Modifier
                                     .alpha(0.7f)
+                                    .weight(1F)
                                     .padding(end = 16.dp)
                             )
                         }
-
                         Row(
                             Modifier.weight(1F), horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.CenterVertically
@@ -179,11 +196,11 @@ fun MonthView(viewModel: WeightViewModel) {
                             Spacer(Modifier.width(8.dp))
                             if (breadIcon != null) Image(
                                 painter = breadIcon, contentDescription = null,
-                                Modifier.size(30.dp)
+                                Modifier.size(20.dp)
                             )
                             if (sugarIcon != null) Image(
                                 painter = sugarIcon, contentDescription = null,
-                                Modifier.size(30.dp)
+                                Modifier.size(20.dp)
                             )
                         }
 
@@ -202,6 +219,37 @@ fun MonthView(viewModel: WeightViewModel) {
                     }
                 }
             }
+        }
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(12.dp, 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = if (savedGoal != null) stringResource(R.string.goal) + ": \n${savedGoal.goalWeight} ${stringResource(R.string.to)} ${
+                    DateTime(savedGoal.targetDate).toString("d.MM.yyyy")
+                }" else "", fontSize = 18.sp, fontWeight = W900, color = Color.White,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            FloatingActionButton(
+                onClick = { showGoalDialog = true }, containerColor = Color.Black
+            ) { Image(painterResource(R.drawable.goal), contentDescription = null) }
+            Spacer(modifier = Modifier.width(8.dp))
+            FloatingActionButton(
+                onClick = { showFoodDialog = true }, containerColor = Color.Black
+            ) { Image(painterResource(R.drawable.food), contentDescription = null) }
+            Spacer(modifier = Modifier.width(8.dp))
+            FloatingActionButton(
+                onClick = {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        selectedDate = DateTime.now().toDate().time
+                        showAddWeightDialog = true
+                    }
+                }, containerColor = Color.Black
+            ) { Text("+", fontSize = 30.sp, color = Color.White) }
         }
     }
 }
